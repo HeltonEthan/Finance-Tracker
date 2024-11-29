@@ -1,7 +1,4 @@
 #include "MainFrame.h"
-#include <wx/charts/wxlinechartctrl.h>
-#include <wx/charts/wxchartslegendctrl.h>
-#include <wx/charts/wxcharts.h>
 
 //This kinda becoming hard to read; but I hate overcommenting
 
@@ -86,55 +83,12 @@ void MainFrame::UpdateContent(int listIndex)
 void MainFrame::updateGraph(int dropDownEvt)
 {
     graphPanel->DestroyChildren();
-
-    wxVector<wxString> labels;
-    labels.push_back("January");
-    labels.push_back("February");
-    labels.push_back("March");
-    labels.push_back("April");
-    labels.push_back("May");
-    labels.push_back("June");
-    labels.push_back("July");
-    labels.push_back("August");
-    labels.push_back("September");
-    labels.push_back("October");
-    labels.push_back("November");
-    labels.push_back("December");
-    wxChartsCategoricalData::ptr chartData = wxChartsCategoricalData::make_shared(labels);
-
-    wxVector<wxDouble> points1;
-    points1.push_back(3);
-    points1.push_back(-2.5);
-    points1.push_back(-1.2);
-    points1.push_back(3);
-    points1.push_back(6);
-    points1.push_back(5);
-    points1.push_back(1);
-    wxChartsDoubleDataset::ptr dataset1(new wxChartsDoubleDataset("My First Dataset", points1));
-    chartData->AddDataset(dataset1);
-
-    wxVector<wxDouble> points2;
-    points2.push_back(1);
-    points2.push_back(-1.33);
-    points2.push_back(2.5);
-    points2.push_back(7);
-    points2.push_back(3);
-    points2.push_back(-1.8);
-    points2.push_back(0.4);
-    wxChartsDoubleDataset::ptr dataset2(new wxChartsDoubleDataset("My Second Dataset", points2));
-    chartData->AddDataset(dataset2);
+    
 
     switch (dropDownEvt)
     {
     case 0: {
-        wxLineChartCtrl* lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, chartData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-        wxChartsLegendData legendData(chartData->GetDatasets());
-        wxChartsLegendCtrl* legendCtrl = new wxChartsLegendCtrl(graphPanel, wxID_ANY, legendData, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-
-        wxBoxSizer* graphPanelSizer = new wxBoxSizer(wxHORIZONTAL);
-        graphPanelSizer->Add(lineChartCtrl, 1, wxEXPAND);
-        graphPanelSizer->Add(legendCtrl, 1, wxEXPAND);
-        graphPanel->SetSizer(graphPanelSizer);
+        
         break;
     }
     case 1:
