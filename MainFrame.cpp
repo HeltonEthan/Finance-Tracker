@@ -108,8 +108,14 @@ void MainFrame::UpdateContent(int listIndex)
     contentPanel->Layout();
 }
 
-// Dropdown box event handler
-void MainFrame::updateGraph(int dropDownEvt)
+void MainFrame::OnDropdownChanged(wxCommandEvent& dropdownevt)
+{
+    int dropdownIndex = dropdownevt.GetSelection();
+    updateGraph(dropdownIndex);
+}
+
+// FIX: Test if DestoryChildren() is actually working for the graphs
+void MainFrame::updateGraph(int dropdownIndex)
 {
     graphPanel->DestroyChildren();
 
@@ -148,7 +154,7 @@ void MainFrame::updateGraph(int dropDownEvt)
     wxLineChartCtrl* lineChartCtrl = nullptr;
     wxBoxSizer* graphSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    switch (dropDownEvt)
+    switch (dropdownIndex)
     {
     case 0:
         lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, chartData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
@@ -157,19 +163,20 @@ void MainFrame::updateGraph(int dropDownEvt)
         break;
 
     case 1:
+        
         break;
 
     case 2:
+        
         break;
 
     case 3:
+        
         break;
 
     case 4:
+        
         break;
-
-    default:
-        return;
     }
 
     graphPanel->Layout();
