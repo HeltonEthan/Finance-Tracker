@@ -10,6 +10,8 @@ public:
 
     void OnListChanged(wxCommandEvent& evt); // Defined in MainFrame.cpp
 
+    void OnDropdownChanged(wxCommandEvent& dropdownevt);
+
 private:
     wxPanel* contentPanel;
 
