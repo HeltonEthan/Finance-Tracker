@@ -10,7 +10,7 @@ public:
 
     void OnListChanged(wxCommandEvent& evt); // Defined in MainFrame.cpp
 
-    void OnDropdownChanged(wxCommandEvent& dropdownevt);
+    void OnDateListChanged(wxCommandEvent& comboBoxEvt);
 
 private:
     wxPanel* contentPanel;
@@ -19,7 +19,7 @@ private:
 
     void UpdateContent(int index); // Defined in MainFrame.cpp
 
-    void updateGraph(int index);
+    void UpdateGraph(int index);
 
     wxDECLARE_EVENT_TABLE(); // Needed
 };
