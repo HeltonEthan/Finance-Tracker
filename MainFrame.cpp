@@ -12,16 +12,16 @@
 enum IDs
 {
     LISTBOX_ID = 2,
-    TIMEFRAME_ID = 3,
+    DATELIST_ID = 3,
 };
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 EVT_LISTBOX(LISTBOX_ID, MainFrame::OnListChanged)
+EVT_LISTBOX(DATELIST_ID, MainFrame::OnDateListChanged)
 wxEND_EVENT_TABLE()
 
 // MainWindow Editor
-MainFrame::MainFrame(const wxString& title)
-    : wxFrame(NULL, wxID_ANY, title)
+MainFrame::MainFrame(const wxString& title): wxFrame(NULL, wxID_ANY, title)
 {
     wxPanel* mainPanel = new wxPanel(this);
 
@@ -71,7 +71,8 @@ void MainFrame::UpdateContent(int listIndex)
 
     wxBoxSizer* contentSizer = new wxBoxSizer(wxVERTICAL);
 
-    // TODO: Add event handling for case 2 and data input methods in MainWindow
+    wxListBox* dateListBox = nullptr;
+
     switch (listIndex)
     {
     case 0:
@@ -89,13 +90,13 @@ void MainFrame::UpdateContent(int listIndex)
         contentSizer->Add(contentText, 0, wxTOP | wxLEFT, 10);
         dateSelection = new wxStaticText(contentPanel, wxID_ANY, "Select a time frame:", wxPoint(10, 50));
         contentSizer->Add(dateSelection, 0, wxTOP | wxLEFT, 10);
-        timeFrame = new wxChoice(contentPanel, TIMEFRAME_ID, wxDefaultPosition, wxDefaultSize, dateSelect);
-        timeFrame->Select(0);
-        contentSizer->Add(timeFrame, 0, wxTOP | wxLEFT, 10);
+        dateListBox = new wxListBox(contentPanel, DATELIST_ID, wxPoint(125, 10), wxSize(125, -1), dateSelect);
+        contentSizer->Add(dateListBox, 0, wxTOP | wxLEFT, 10);
+        dateListBox->Select(0);
 
         graphPanel = new wxPanel(contentPanel, wxID_ANY);
         contentSizer->Add(graphPanel, 1, wxEXPAND | wxALL, 10);
-        updateGraph(0);
+        UpdateGraph(0);
         break;
 
     case 3:
@@ -108,62 +109,127 @@ void MainFrame::UpdateContent(int listIndex)
     contentPanel->Layout();
 }
 
-void MainFrame::OnDropdownChanged(wxCommandEvent& dropdownevt)
+//Not working
+void MainFrame::OnDateListChanged(wxCommandEvent& listEvt)
 {
-    int dropdownIndex = dropdownevt.GetSelection();
-    updateGraph(dropdownIndex);
+    int listIndex = listEvt.GetSelection();
+    UpdateGraph(listIndex);
 }
 
-// FIX: Test if DestoryChildren() is actually working for the graphs
-void MainFrame::updateGraph(int dropdownIndex)
+void MainFrame::UpdateGraph(int listIndex)
 {
     graphPanel->DestroyChildren();
 
-    wxVector<wxString> labels;
-    labels.push_back("January");
-    labels.push_back("February");
-    labels.push_back("March");
-    labels.push_back("April");
-    labels.push_back("May");
-    labels.push_back("June");
-    labels.push_back("July");
-    wxChartsCategoricalData::ptr chartData = wxChartsCategoricalData::make_shared(labels);
+    //Data set all time
+    wxVector<wxString> allTimeLabels;
+    allTimeLabels.push_back("1/23");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("3/23");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("5/23");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("7/23");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("9/23");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("11/23");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("1/24");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("3/24");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("5/24");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("7/24");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("9/24");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("11/24");
+    allTimeLabels.push_back("");
+    allTimeLabels.push_back("");
+    wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
 
-    wxVector<wxDouble> points1;
-    points1.push_back(3);
-    points1.push_back(-2.5);
-    points1.push_back(-1.2);
-    points1.push_back(3);
-    points1.push_back(6);
-    points1.push_back(5);
-    points1.push_back(1);
-    wxChartsDoubleDataset::ptr dataset1(new wxChartsDoubleDataset("My First Dataset", points1));
-    chartData->AddDataset(dataset1);
+    wxVector<wxDouble> allTimePoints;
+    allTimePoints.push_back(600);
+    allTimePoints.push_back(625);
+    allTimePoints.push_back(642.2);
+    allTimePoints.push_back(730);
+    allTimePoints.push_back(654);
+    allTimePoints.push_back(576);
+    allTimePoints.push_back(648.4);
+    allTimePoints.push_back(632);
+    allTimePoints.push_back(643);
+    allTimePoints.push_back(723);
+    allTimePoints.push_back(687);
+    allTimePoints.push_back(645);
+    allTimePoints.push_back(644);
+    allTimePoints.push_back(678);
+    allTimePoints.push_back(702);
+    allTimePoints.push_back(657);
+    allTimePoints.push_back(654);
+    allTimePoints.push_back(678);
+    allTimePoints.push_back(675);
+    allTimePoints.push_back(654);
+    allTimePoints.push_back(645);
+    allTimePoints.push_back(678);
+    allTimePoints.push_back(645);
+    allTimePoints.push_back(694);
+    wxChartsDoubleDataset::ptr allTimeDataSet(new wxChartsDoubleDataset("All time dataset", allTimePoints));
+    allTimeData->AddDataset(allTimeDataSet);
 
-    wxVector<wxDouble> points2;
-    points2.push_back(1);
-    points2.push_back(-1.33);
-    points2.push_back(2.5);
-    points2.push_back(7);
-    points2.push_back(3);
-    points2.push_back(-1.8);
-    points2.push_back(0.4);
-    wxChartsDoubleDataset::ptr dataset2(new wxChartsDoubleDataset("My Second Dataset", points2));
-    chartData->AddDataset(dataset2);
+    //data set yearly
 
-    wxLineChartCtrl* lineChartCtrl = nullptr;
+    wxVector<wxString> yearlyLabels;
+    yearlyLabels.push_back("Jan");
+    yearlyLabels.push_back("Feb");
+    yearlyLabels.push_back("March");
+    yearlyLabels.push_back("April");
+    yearlyLabels.push_back("May");
+    yearlyLabels.push_back("June");
+    yearlyLabels.push_back("July");
+    yearlyLabels.push_back("Aug");
+    yearlyLabels.push_back("Sept");
+    yearlyLabels.push_back("Oct");
+    yearlyLabels.push_back("Nov");
+    yearlyLabels.push_back("Dec");
+    yearlyLabels.push_back("");
+    wxChartsCategoricalData::ptr yearlyData = wxChartsCategoricalData::make_shared(yearlyLabels);
+
+    wxVector<wxDouble> yearlyPoints;
+    yearlyPoints.push_back(654);
+    yearlyPoints.push_back(668);
+    yearlyPoints.push_back(722);
+    yearlyPoints.push_back(637);
+    yearlyPoints.push_back(664);
+    yearlyPoints.push_back(698);
+    yearlyPoints.push_back(645);
+    yearlyPoints.push_back(664);
+    yearlyPoints.push_back(675);
+    yearlyPoints.push_back(638);
+    yearlyPoints.push_back(655);
+    yearlyPoints.push_back(704);
+    wxChartsDoubleDataset::ptr yearlyDataSet(new wxChartsDoubleDataset("Yearly data set", yearlyPoints));
+    yearlyData->AddDataset(yearlyDataSet);
+    
+
+    wxLineChartCtrl* allTimeCtrl = nullptr;
+    wxLineChartCtrl* yearlyCtrl = nullptr;
     wxBoxSizer* graphSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    switch (dropdownIndex)
+    switch (listIndex)
     {
     case 0:
-        lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, chartData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-        graphSizer->Add(lineChartCtrl, 1, wxEXPAND);
+        allTimeCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, allTimeData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+        graphSizer->Add(allTimeCtrl, 1, wxEXPAND);
         graphPanel->SetSizer(graphSizer);
+
         break;
 
     case 1:
-        
+        yearlyCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, yearlyData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+        graphSizer->Add(yearlyCtrl, 1, wxEXPAND);
+        graphPanel->SetSizer(graphSizer);
+
         break;
 
     case 2:
@@ -180,4 +246,5 @@ void MainFrame::updateGraph(int dropdownIndex)
     }
 
     graphPanel->Layout();
+    graphPanel->SetSizer(graphSizer);
 }
