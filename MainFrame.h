@@ -29,7 +29,7 @@ private:
 
     void UpdateGraph(int index);
 
-    void UpdateOnINpress(wxString money);
+    void UpdateOnINpress(wxString money, int listIndex);
 
     void ImportINListBox();
 
