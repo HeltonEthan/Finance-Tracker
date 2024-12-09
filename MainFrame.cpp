@@ -1,4 +1,5 @@
 #include "MainFrame.h"
+#include "DataHandling.h"
 #include <wx/wx.h>
 #include <wxcharts.h>
 #include <wxchart.h>
@@ -6,6 +7,9 @@
 #include <wxlinechartctrl.h>
 #include <wxlinechart.h>
 #include <wxchartsdataset.h>
+#include <wx/statline.h>
+#include <iostream>
+#include <string>
 
 // This is becoming hard to read; but I hate overcommenting
 
@@ -13,11 +17,19 @@ enum IDs
 {
     LISTBOX_ID = 2,
     DATELIST_ID = 3,
+    INCOME_SOURCE_BOX_ID = 4,
+    OUTCOME_SOURCE_BOX_ID = 5,
+    INPUT_MONEY_ID = 6,
+    INPUT_OUT_MONEY_ID = 7,
+    IN_REFRESH_ID = 8,
+    OUT_REFRESH_ID = 9,
 };
 
 wxBEGIN_EVENT_TABLE(MainFrame, wxFrame)
 EVT_LISTBOX(LISTBOX_ID, MainFrame::OnListChanged)
 EVT_LISTBOX(DATELIST_ID, MainFrame::OnDateListChanged)
+EVT_LISTBOX(INCOME_SOURCE_BOX_ID, MainFrame::IncomeSourceBox)
+EVT_LISTBOX(OUTCOME_SOURCE_BOX_ID, MainFrame::OutcomeSourceBox)
 wxEND_EVENT_TABLE()
 
 // MainWindow Editor
@@ -31,7 +43,6 @@ MainFrame::MainFrame(const wxString& title): wxFrame(NULL, wxID_ANY, title)
     tabs.Add("General Finances");
     tabs.Add("Statistics");
     tabs.Add("Expenses Tracker");
-    tabs.Add("Expenses History");
 
     // Constructing the Listbox
     wxListBox* listBox = new wxListBox(mainPanel, LISTBOX_ID, wxPoint(15, 15), wxSize(125, -1), tabs);
@@ -45,7 +56,10 @@ MainFrame::MainFrame(const wxString& title): wxFrame(NULL, wxID_ANY, title)
     mainPanel->SetSizer(mainSizer);
 
     UpdateContent(0);
+    listBox->Select(0);
 }
+
+wxTextCtrl* inputMoney = nullptr;
 
 // List event detection
 void MainFrame::OnListChanged(wxCommandEvent& listEvt)
@@ -62,22 +76,63 @@ void MainFrame::UpdateContent(int listIndex)
     wxStaticText* dateSelection = nullptr;
     wxChoice* timeFrame = nullptr;
 
-    wxArrayString dateSelect; // Need to make events for these
+    wxArrayString dateSelect;
     dateSelect.Add("All time");
     dateSelect.Add("1 Year");
     dateSelect.Add("6 Months");
     dateSelect.Add("1 Month");
-    dateSelect.Add("2 Weeks");
+
+    wxArrayString income_source;
+    income_source.Add("Job");
+    income_source.Add("Gift");
+    income_source.Add("Investing");
+    income_source.Add("Other");
+
+    wxArrayString outcome_source;
+    outcome_source.Add("Food");
+    outcome_source.Add("Clothes");
+    outcome_source.Add("Investing");
+    outcome_source.Add("Other");
 
     wxBoxSizer* contentSizer = new wxBoxSizer(wxVERTICAL);
-
     wxListBox* dateListBox = nullptr;
+    wxStaticText* inputPoint = nullptr;
+    wxStaticText* input = nullptr;
+    wxButton* inRefresh = nullptr;
+    wxStaticLine* line = nullptr;
+    
+    wxListBox* income_source_box = nullptr;
+    wxStaticText* text = nullptr;
+    wxButton* outRefresh = nullptr;
+    wxTextCtrl* inputOutMoney = nullptr;
+    wxListBox* outcome_source_box = nullptr;
 
     switch (listIndex)
     {
     case 0:
+        //TODO make event handling for all this shit
         contentText = new wxStaticText(contentPanel, wxID_ANY, "General Finances", wxPoint(10, 10));
         contentSizer->Add(contentText, 0, wxTOP | wxLEFT, 10);
+        inputPoint = new wxStaticText(contentPanel, wxID_ANY, "Input today's earnings", wxPoint(10, 40));
+        inRefresh = new wxButton(contentPanel, IN_REFRESH_ID, "Submit", wxPoint(100, 60));
+        inputMoney = new wxTextCtrl(contentPanel, INPUT_MONEY_ID, "", wxPoint(10, 60), wxSize(85, 22));
+        income_source_box = new wxListBox(contentPanel, INCOME_SOURCE_BOX_ID, wxPoint(32, 90), wxSize(125, -1), income_source);
+
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(185, 48), wxSize(2, 125), wxLI_VERTICAL);
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(130, 48), wxSize(58, 2), wxLI_HORIZONTAL);
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(5, 171), wxSize(181, 2), wxLI_HORIZONTAL);
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(5, 48), wxSize(2, 125), wxLI_VERTICAL);
+
+        text = new wxStaticText(contentPanel, wxID_ANY, "Input today's spendings", wxPoint(210, 40));
+        outRefresh = new wxButton(contentPanel, OUT_REFRESH_ID, "Submit", wxPoint(300, 60));
+        inputOutMoney = new wxTextCtrl(contentPanel, INPUT_OUT_MONEY_ID, "", wxPoint(210, 60), wxSize(85, 22));
+        outcome_source_box = new wxListBox(contentPanel, OUTCOME_SOURCE_BOX_ID, wxPoint(232, 90), wxSize(125, -1), outcome_source);
+
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(385, 48), wxSize(2, 125), wxLI_VERTICAL);
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(330, 48), wxSize(58, 2), wxLI_HORIZONTAL);
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(205, 171), wxSize(181, 2), wxLI_HORIZONTAL);
+        line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(205, 48), wxSize(2, 125), wxLI_VERTICAL);
+        
         break;
 
     case 1:
@@ -95,13 +150,8 @@ void MainFrame::UpdateContent(int listIndex)
         dateListBox->Select(0);
 
         graphPanel = new wxPanel(contentPanel, wxID_ANY);
-        contentSizer->Add(graphPanel, 1, wxEXPAND | wxALL, 10);
+        contentSizer->Add(graphPanel, 1, wxEXPAND | wxHORIZONTAL, 10);
         UpdateGraph(0);
-        break;
-
-    case 3:
-        contentText = new wxStaticText(contentPanel, wxID_ANY, "Expenses Tracker", wxPoint(10, 10));
-        contentSizer->Add(contentText, 0, wxTOP | wxLEFT, 10);
         break;
     }
 
@@ -109,7 +159,46 @@ void MainFrame::UpdateContent(int listIndex)
     contentPanel->Layout();
 }
 
-//Not working
+void MainFrame::OutcomeSourceBox(wxCommandEvent& Evt)
+{
+    int OutlistIndex = Evt.GetSelection();
+}
+
+void MainFrame::IncomeSourceBox(wxCommandEvent& Evt)
+{
+    int IncomelistIndex = Evt.GetSelection();
+}
+
+void MainFrame::ImportINListBox()
+{
+
+}
+
+void MainFrame::ImportOUTListBox()
+{
+
+}
+
+void MainFrame::UpdateOnINpress(std::string money)
+{
+
+}
+
+void MainFrame::UpdateOnOUTpress()
+{
+
+}
+
+void MainFrame::InRefresh(wxCommandEvent& Evt)
+{
+    UpdateOnINpress(inputMoney.GetSelection());
+}
+
+void MainFrame::OutRefresh(wxCommandEvent& Evt)
+{
+    
+}
+
 void MainFrame::OnDateListChanged(wxCommandEvent& listEvt)
 {
     int listIndex = listEvt.GetSelection();
@@ -121,61 +210,10 @@ void MainFrame::UpdateGraph(int listIndex)
     graphPanel->DestroyChildren();
 
     //Data set all time
+
     wxVector<wxString> allTimeLabels;
-    allTimeLabels.push_back("1/23");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("3/23");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("5/23");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("7/23");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("9/23");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("11/23");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("1/24");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("3/24");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("5/24");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("7/24");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("9/24");
-    allTimeLabels.push_back("");
-    allTimeLabels.push_back("11/24");
-    allTimeLabels.push_back("");
     allTimeLabels.push_back("");
     wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
-
-    wxVector<wxDouble> allTimePoints;
-    allTimePoints.push_back(600);
-    allTimePoints.push_back(625);
-    allTimePoints.push_back(642.2);
-    allTimePoints.push_back(730);
-    allTimePoints.push_back(654);
-    allTimePoints.push_back(576);
-    allTimePoints.push_back(648.4);
-    allTimePoints.push_back(632);
-    allTimePoints.push_back(643);
-    allTimePoints.push_back(723);
-    allTimePoints.push_back(687);
-    allTimePoints.push_back(645);
-    allTimePoints.push_back(644);
-    allTimePoints.push_back(678);
-    allTimePoints.push_back(702);
-    allTimePoints.push_back(657);
-    allTimePoints.push_back(654);
-    allTimePoints.push_back(678);
-    allTimePoints.push_back(675);
-    allTimePoints.push_back(654);
-    allTimePoints.push_back(645);
-    allTimePoints.push_back(678);
-    allTimePoints.push_back(645);
-    allTimePoints.push_back(694);
-    wxChartsDoubleDataset::ptr allTimeDataSet(new wxChartsDoubleDataset("All time dataset", allTimePoints));
-    allTimeData->AddDataset(allTimeDataSet);
 
     //data set yearly
 
@@ -195,53 +233,57 @@ void MainFrame::UpdateGraph(int listIndex)
     yearlyLabels.push_back("");
     wxChartsCategoricalData::ptr yearlyData = wxChartsCategoricalData::make_shared(yearlyLabels);
 
-    wxVector<wxDouble> yearlyPoints;
-    yearlyPoints.push_back(654);
-    yearlyPoints.push_back(668);
-    yearlyPoints.push_back(722);
-    yearlyPoints.push_back(637);
-    yearlyPoints.push_back(664);
-    yearlyPoints.push_back(698);
-    yearlyPoints.push_back(645);
-    yearlyPoints.push_back(664);
-    yearlyPoints.push_back(675);
-    yearlyPoints.push_back(638);
-    yearlyPoints.push_back(655);
-    yearlyPoints.push_back(704);
-    wxChartsDoubleDataset::ptr yearlyDataSet(new wxChartsDoubleDataset("Yearly data set", yearlyPoints));
-    yearlyData->AddDataset(yearlyDataSet);
-    
+    //data set 6 months
 
-    wxLineChartCtrl* allTimeCtrl = nullptr;
-    wxLineChartCtrl* yearlyCtrl = nullptr;
+    wxVector<wxString> biYearlyLabels;
+    biYearlyLabels.push_back("");
+    biYearlyLabels.push_back("");
+    biYearlyLabels.push_back("");
+    biYearlyLabels.push_back("");
+    biYearlyLabels.push_back("");
+    biYearlyLabels.push_back("");
+    wxChartsCategoricalData::ptr biYearlyData = wxChartsCategoricalData::make_shared(biYearlyLabels);
+
+    wxVector<wxString> monthLabels;
+    monthLabels.push_back("");
+    monthLabels.push_back("");
+    monthLabels.push_back("");
+    monthLabels.push_back("");
+    wxChartsCategoricalData::ptr monthData = wxChartsCategoricalData::make_shared(monthLabels);
+
+    //data set 1 month
+
+    wxLineChartCtrl* lineChartCtrl = nullptr;
     wxBoxSizer* graphSizer = new wxBoxSizer(wxHORIZONTAL);
 
     switch (listIndex)
     {
     case 0:
-        allTimeCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, allTimeData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-        graphSizer->Add(allTimeCtrl, 1, wxEXPAND);
+        lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, allTimeData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+        graphSizer->Add(lineChartCtrl, 1, wxEXPAND);
         graphPanel->SetSizer(graphSizer);
 
         break;
 
     case 1:
-        yearlyCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, yearlyData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
-        graphSizer->Add(yearlyCtrl, 1, wxEXPAND);
+        lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, yearlyData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+        graphSizer->Add(lineChartCtrl, 1, wxEXPAND);
         graphPanel->SetSizer(graphSizer);
 
         break;
 
     case 2:
-        
+        lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, biYearlyData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+        graphSizer->Add(lineChartCtrl, 1, wxEXPAND);
+        graphPanel->SetSizer(graphSizer);
+
         break;
 
     case 3:
-        
-        break;
+        lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, monthData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
+        graphSizer->Add(lineChartCtrl, 1, wxEXPAND);
+        graphPanel->SetSizer(graphSizer);
 
-    case 4:
-        
         break;
     }
 
