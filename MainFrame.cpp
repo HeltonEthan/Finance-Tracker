@@ -179,7 +179,7 @@ void MainFrame::ImportOUTListBox()
 
 }
 
-void MainFrame::UpdateOnINpress(std::string money)
+void MainFrame::UpdateOnINpress(wxString money)
 {
 
 }
@@ -191,7 +191,7 @@ void MainFrame::UpdateOnOUTpress()
 
 void MainFrame::InRefresh(wxCommandEvent& Evt)
 {
-    UpdateOnINpress(inputMoney.GetSelection());
+    UpdateOnINpress(inputMoney->GetValue());
 }
 
 void MainFrame::OutRefresh(wxCommandEvent& Evt)
