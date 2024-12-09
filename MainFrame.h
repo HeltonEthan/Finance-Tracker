@@ -12,6 +12,14 @@ public:
 
     void OnDateListChanged(wxCommandEvent& comboBoxEvt);
 
+    void OutcomeSourceBox(wxCommandEvent& Evt);
+
+    void IncomeSourceBox(wxCommandEvent& Evt);
+
+    void InRefresh(wxCommandEvent& Evt);
+
+    void OutRefresh(wxCommandEvent& Evt);
+
 private:
     wxPanel* contentPanel;
 
@@ -20,6 +28,14 @@ private:
     void UpdateContent(int index); // Defined in MainFrame.cpp
 
     void UpdateGraph(int index);
+
+    void UpdateOnINpress(std::string money);
+
+    void ImportINListBox();
+
+    void ImportOUTListBox();
+
+    void UpdateOnOUTpress();
 
     wxDECLARE_EVENT_TABLE(); // Needed
 };
