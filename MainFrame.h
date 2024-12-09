@@ -29,7 +29,7 @@ private:
 
     void UpdateGraph(int index);
 
-    void UpdateOnINpress(std::string money);
+    void UpdateOnINpress(wxString money);
 
     void ImportINListBox();
 
