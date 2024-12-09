@@ -30,6 +30,8 @@ EVT_LISTBOX(LISTBOX_ID, MainFrame::OnListChanged)
 EVT_LISTBOX(DATELIST_ID, MainFrame::OnDateListChanged)
 EVT_LISTBOX(INCOME_SOURCE_BOX_ID, MainFrame::IncomeSourceBox)
 EVT_LISTBOX(OUTCOME_SOURCE_BOX_ID, MainFrame::OutcomeSourceBox)
+EVT_BUTTON(IN_REFRESH_ID, MainFrame::InRefresh)
+EVT_BUTTON(OUT_REFRESH_ID, MainFrame::OutRefresh)
 wxEND_EVENT_TABLE()
 
 // MainWindow Editor
@@ -60,6 +62,7 @@ MainFrame::MainFrame(const wxString& title): wxFrame(NULL, wxID_ANY, title)
 }
 
 wxTextCtrl* inputMoney = nullptr;
+wxListBox* income_source_box = nullptr;
 
 // List event detection
 void MainFrame::OnListChanged(wxCommandEvent& listEvt)
@@ -100,8 +103,6 @@ void MainFrame::UpdateContent(int listIndex)
     wxStaticText* input = nullptr;
     wxButton* inRefresh = nullptr;
     wxStaticLine* line = nullptr;
-    
-    wxListBox* income_source_box = nullptr;
     wxStaticText* text = nullptr;
     wxButton* outRefresh = nullptr;
     wxTextCtrl* inputOutMoney = nullptr;
@@ -164,9 +165,11 @@ void MainFrame::OutcomeSourceBox(wxCommandEvent& Evt)
     int OutlistIndex = Evt.GetSelection();
 }
 
+int IncomelistIndex;
+
 void MainFrame::IncomeSourceBox(wxCommandEvent& Evt)
 {
-    int IncomelistIndex = Evt.GetSelection();
+    IncomelistIndex = Evt.GetSelection();
 }
 
 void MainFrame::ImportINListBox()
@@ -179,9 +182,13 @@ void MainFrame::ImportOUTListBox()
 
 }
 
-void MainFrame::UpdateOnINpress(wxString money)
+void MainFrame::UpdateOnINpress(wxString money, int listIndex)
 {
-
+    
+    //Keep this last in the function.
+    inputMoney->Destroy();
+    income_source_box->Deselect(listIndex);
+    inputMoney = new wxTextCtrl(contentPanel, INPUT_MONEY_ID, "", wxPoint(10, 60), wxSize(85, 22));
 }
 
 void MainFrame::UpdateOnOUTpress()
@@ -191,7 +198,7 @@ void MainFrame::UpdateOnOUTpress()
 
 void MainFrame::InRefresh(wxCommandEvent& Evt)
 {
-    UpdateOnINpress(inputMoney->GetValue());
+    UpdateOnINpress(inputMoney->GetValue(), IncomelistIndex);
 }
 
 void MainFrame::OutRefresh(wxCommandEvent& Evt)
