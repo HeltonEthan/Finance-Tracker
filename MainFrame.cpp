@@ -177,16 +177,6 @@ void MainFrame::IncomeSourceBox(wxCommandEvent& Evt)
     IncomelistIndex = Evt.GetSelection();
 }
 
-void MainFrame::ImportINListBox()
-{
-
-}
-
-void MainFrame::ImportOUTListBox()
-{
-
-}
-
 void MainFrame::UpdateOnINpress(wxString placeHolderForMoney, int listIndex)
 {
     double money;
