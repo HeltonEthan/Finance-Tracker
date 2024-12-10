@@ -33,5 +33,7 @@ private:
 
     void UpdateOnOUTpress(wxString money, int listIndex);
 
+    void GraphHandler();
+
     wxDECLARE_EVENT_TABLE(); // Needed
 };
