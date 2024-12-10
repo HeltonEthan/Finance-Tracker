@@ -31,11 +31,7 @@ private:
 
     void UpdateOnINpress(wxString money, int listIndex);
 
-    void ImportINListBox();
-
-    void ImportOUTListBox();
-
-    void UpdateOnOUTpress();
+    void UpdateOnOUTpress(wxString money, int listIndex);
 
     wxDECLARE_EVENT_TABLE(); // Needed
 };
