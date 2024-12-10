@@ -163,6 +163,21 @@ void MainFrame::UpdateContent(int listIndex)
     contentPanel->Layout();
 }
 
+//All time vector data declaration for graphs (LABELS)
+
+wxVector<wxString> allTimeLabels;
+wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
+
+//All time vector data declaration for graphs (DATA_IN)
+
+wxVector<wxDouble> allTimePointsIN;
+wxChartsDoubleDataset::ptr dataset1(new wxChartsDoubleDataset("All Time Points IN", allTimePointsIN));
+
+//All time vector data declaration for graphs (DATA_OUT)
+
+wxVector<wxDouble> allTimePointsOUT;
+wxChartsDoubleDataset::ptr dataset2(new wxChartsDoubleDataset("All Time Points IN", allTimePointsOUT));
+
 int OutlistIndex;
 
 void MainFrame::OutcomeSourceBox(wxCommandEvent& Evt)
@@ -237,6 +252,11 @@ void MainFrame::UpdateOnOUTpress(wxString placeHolderForMoney, int listIndex)
     inputOutMoney = new wxTextCtrl(contentPanel, INPUT_OUT_MONEY_ID, "", wxPoint(210, 60), wxSize(85, 22));
 }
 
+void MainFrame::GraphHandler()
+{
+
+}
+
 void MainFrame::InRefresh(wxCommandEvent& Evt)
 {
     UpdateOnINpress(inputMoney->GetValue(), IncomelistIndex);
@@ -256,12 +276,6 @@ void MainFrame::OnDateListChanged(wxCommandEvent& listEvt)
 void MainFrame::UpdateGraph(int listIndex)
 {
     graphPanel->DestroyChildren();
-
-    //Data set all time
-
-    wxVector<wxString> allTimeLabels;
-    allTimeLabels.push_back("");
-    wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
 
     //data set yearly
 
