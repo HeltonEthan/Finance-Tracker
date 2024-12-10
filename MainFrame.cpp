@@ -1,5 +1,4 @@
 #include "MainFrame.h"
-#include "DataHandling.h"
 #include <wx/wx.h>
 #include <wxcharts.h>
 #include <wxchart.h>
@@ -10,6 +9,10 @@
 #include <wx/statline.h>
 #include <iostream>
 #include <string>
+#include <wx/textfile.h>
+#include <wx/datetime.h>
+#include <ctime>
+#include <fstream>
 
 // This is becoming hard to read; but I hate overcommenting
 
@@ -63,6 +66,8 @@ MainFrame::MainFrame(const wxString& title): wxFrame(NULL, wxID_ANY, title)
 
 wxTextCtrl* inputMoney = nullptr;
 wxListBox* income_source_box = nullptr;
+wxTextCtrl* inputOutMoney = nullptr;
+wxListBox* outcome_source_box = nullptr;
 
 // List event detection
 void MainFrame::OnListChanged(wxCommandEvent& listEvt)
@@ -105,8 +110,6 @@ void MainFrame::UpdateContent(int listIndex)
     wxStaticLine* line = nullptr;
     wxStaticText* text = nullptr;
     wxButton* outRefresh = nullptr;
-    wxTextCtrl* inputOutMoney = nullptr;
-    wxListBox* outcome_source_box = nullptr;
 
     switch (listIndex)
     {
@@ -160,9 +163,11 @@ void MainFrame::UpdateContent(int listIndex)
     contentPanel->Layout();
 }
 
+int OutlistIndex;
+
 void MainFrame::OutcomeSourceBox(wxCommandEvent& Evt)
 {
-    int OutlistIndex = Evt.GetSelection();
+    OutlistIndex = Evt.GetSelection();
 }
 
 int IncomelistIndex;
@@ -182,18 +187,64 @@ void MainFrame::ImportOUTListBox()
 
 }
 
-void MainFrame::UpdateOnINpress(wxString money, int listIndex)
+void MainFrame::UpdateOnINpress(wxString placeHolderForMoney, int listIndex)
 {
-    
+    double money;
+    placeHolderForMoney.ToDouble(&money);
+
+    wxString moneytype[4];
+    moneytype[0] = "job";
+    moneytype[1] = "gift";
+    moneytype[2] = "investing";
+    moneytype[3] = "other";
+
+    time_t timestamp;
+    time(&timestamp);
+
+    struct tm* localTime = localtime(&timestamp);
+
+    char formattedDate[9];
+    strftime(formattedDate, sizeof(formattedDate), "%m %d %y", localTime);
+
+    std::ofstream outFile("moneyIn.txt", std::ios::app);
+
+    outFile << money << "," << moneytype[listIndex] << "," << formattedDate << std::endl;
+
+
     //Keep this last in the function.
     inputMoney->Destroy();
     income_source_box->Deselect(listIndex);
     inputMoney = new wxTextCtrl(contentPanel, INPUT_MONEY_ID, "", wxPoint(10, 60), wxSize(85, 22));
 }
 
-void MainFrame::UpdateOnOUTpress()
+void MainFrame::UpdateOnOUTpress(wxString placeHolderForMoney, int listIndex)
 {
+    double money;
+    placeHolderForMoney.ToDouble(&money);
 
+    wxString moneytype[4];
+    moneytype[0] = "food";
+    moneytype[1] = "clothing";
+    moneytype[2] = "investing";
+    moneytype[3] = "other";
+
+    time_t timestamp;
+    time(&timestamp);
+
+    struct tm* localTime = localtime(&timestamp);
+
+    char formattedDate[9];  
+    strftime(formattedDate, sizeof(formattedDate), "%m %d %y", localTime);
+
+    std::ofstream outFile("moneyOut.txt", std::ios::app);
+
+    outFile << money << "," << moneytype[listIndex] << "," << formattedDate << std::endl;
+
+
+    //Keep this last in the function
+    inputOutMoney->Destroy();
+    outcome_source_box->Deselect(OutlistIndex);
+    inputOutMoney = new wxTextCtrl(contentPanel, INPUT_OUT_MONEY_ID, "", wxPoint(210, 60), wxSize(85, 22));
 }
 
 void MainFrame::InRefresh(wxCommandEvent& Evt)
@@ -203,7 +254,7 @@ void MainFrame::InRefresh(wxCommandEvent& Evt)
 
 void MainFrame::OutRefresh(wxCommandEvent& Evt)
 {
-    
+    UpdateOnOUTpress(inputOutMoney->GetValue(), OutlistIndex);
 }
 
 void MainFrame::OnDateListChanged(wxCommandEvent& listEvt)
