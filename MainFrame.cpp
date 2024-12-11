@@ -13,6 +13,7 @@
 #include <wx/datetime.h>
 #include <ctime>
 #include <fstream>
+#include <sstream>
 
 // This is becoming hard to read; but I hate overcommenting
 
@@ -163,21 +164,6 @@ void MainFrame::UpdateContent(int listIndex)
     contentPanel->Layout();
 }
 
-//All time vector data declaration for graphs (LABELS)
-
-wxVector<wxString> allTimeLabels;
-wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
-
-//All time vector data declaration for graphs (DATA_IN)
-
-wxVector<wxDouble> allTimePointsIN;
-wxChartsDoubleDataset::ptr dataset1(new wxChartsDoubleDataset("All Time Points IN", allTimePointsIN));
-
-//All time vector data declaration for graphs (DATA_OUT)
-
-wxVector<wxDouble> allTimePointsOUT;
-wxChartsDoubleDataset::ptr dataset2(new wxChartsDoubleDataset("All Time Points IN", allTimePointsOUT));
-
 int OutlistIndex;
 
 void MainFrame::OutcomeSourceBox(wxCommandEvent& Evt)
@@ -252,7 +238,7 @@ void MainFrame::UpdateOnOUTpress(wxString placeHolderForMoney, int listIndex)
     inputOutMoney = new wxTextCtrl(contentPanel, INPUT_OUT_MONEY_ID, "", wxPoint(210, 60), wxSize(85, 22));
 }
 
-void MainFrame::GraphHandler()
+void MainFrame::LabelHandler()
 {
 
 }
@@ -318,13 +304,64 @@ void MainFrame::UpdateGraph(int listIndex)
     wxLineChartCtrl* lineChartCtrl = nullptr;
     wxBoxSizer* graphSizer = new wxBoxSizer(wxHORIZONTAL);
 
+    //This is where handling is for pulling shit out of the files (ALL TIME)
+
+    //ALLTIME OUT & LABELS
+
+    std::string outLine;
+    std::ifstream outFile("moneyOut.txt");
+
+    wxVector<wxString> allTimeLabels;
+    wxVector<wxDouble> allTimePointsOUT;
+
+    while (std::getline(outFile, outLine))
+    {
+        std::istringstream lineStream(outLine);
+        std::string outMoneyStr, outType, dateStr;
+        std::getline(lineStream, outMoneyStr, ',');
+        std::getline(lineStream, outType, ',');
+        std::getline(lineStream, dateStr, ',');
+
+        wxDouble money = std::stod(outMoneyStr);
+        allTimePointsOUT.push_back(money);
+        allTimeLabels.push_back(wxString(dateStr));
+    }
+
+    wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
+    wxChartsDoubleDataset::ptr allTimeDataOUT(new wxChartsDoubleDataset("All Time Points OUT", allTimePointsOUT));
+
+    allTimeData->AddDataset(allTimeDataOUT);
+
+    //ALL TIME IN
+
+    std::string inLine;
+    std::ifstream inFile("moneyIn.txt");
+
+    wxVector<wxDouble> allTimePointsIN;
+
+    while (std::getline(inFile, inLine))
+    {
+        std::istringstream lineStream(inLine);
+        std::string inMoneyStr, inType, inDateStr;
+        std::getline(lineStream, inMoneyStr, ',');
+        std::getline(lineStream, inType, ',');
+        std::getline(lineStream, inDateStr, ',');
+
+        wxDouble inMoney = std::stod(inMoneyStr);
+        allTimePointsIN.push_back(inMoney);
+    }
+
+    wxChartsDoubleDataset::ptr allTimeDataIN(new wxChartsDoubleDataset("All Time Points OUT", allTimePointsIN));
+    allTimeData->AddDataset(allTimeDataIN);
+
+    //End of (ALL TIME) Data handling
+
     switch (listIndex)
     {
     case 0:
         lineChartCtrl = new wxLineChartCtrl(graphPanel, wxID_ANY, allTimeData, wxCHARTSLINETYPE_STRAIGHT, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE);
         graphSizer->Add(lineChartCtrl, 1, wxEXPAND);
         graphPanel->SetSizer(graphSizer);
-
         break;
 
     case 1:
