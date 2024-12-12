@@ -263,7 +263,7 @@ void MainFrame::UpdateGraph(int listIndex)
 {
     graphPanel->DestroyChildren();
 
-    //data set yearly
+    //labels yearly
 
     wxVector<wxString> yearlyLabels;
     yearlyLabels.push_back("Jan");
@@ -281,6 +281,221 @@ void MainFrame::UpdateGraph(int listIndex)
     yearlyLabels.push_back("");
     wxChartsCategoricalData::ptr yearlyData = wxChartsCategoricalData::make_shared(yearlyLabels);
 
+    //Calculations and data processing for yearly IN
+
+    std::string yearIN_Line;
+    std::ifstream yearIN_File("moneyIn.txt");
+
+    wxVector<wxDouble> yearPointsIN;
+
+    time_t timestamp;
+    time(&timestamp);
+
+    struct tm* localTime = localtime(&timestamp);
+
+    char yearDate[3];
+    strftime(yearDate, sizeof(yearDate), "%y", localTime);
+
+    char monthDate[3];
+    strftime(monthDate, sizeof(monthDate), "%m", localTime);
+
+    double currentYear = std::stod(yearDate);
+
+    int currentMonth = std::stoi(monthDate);
+
+    double YTD = std::stod(yearDate);
+
+    double IN_JAN = 0;
+    double IN_FEB = 0;
+    double IN_MAR = 0;
+    double IN_APR = 0;
+    double IN_MAY = 0;
+    double IN_JUN = 0;
+    double IN_JUL = 0;
+    double IN_AUG = 0;
+    double IN_SEP = 0;
+    double IN_OCT = 0;
+    double IN_NOV = 0;
+    double IN_DEC = 0;
+
+    while (std::getline(yearIN_File, yearIN_Line))
+    {
+        std::istringstream lineStream(yearIN_Line);
+        std::string yearOUT_MoneyStr, yearOUT_Type, dateStr;
+        std::getline(lineStream, yearOUT_MoneyStr, ',');
+        std::getline(lineStream, yearOUT_Type, ',');
+        std::getline(lineStream, dateStr, ',');
+
+        std::istringstream dateStream(dateStr);
+        std::string month, day, year;
+        std::getline(dateStream, month, ' ');
+        std::getline(dateStream, day, ' ');
+        std::getline(dateStream, year);
+
+        double monthNUM = std::stod(month);
+        double yearNUM = std::stod(year);
+
+        double yearIN_Money = std::stod(yearOUT_MoneyStr);
+        
+        if (currentYear == yearNUM)
+        {
+            switch (currentMonth)
+            {
+                case 1:
+                    IN_JAN += yearIN_Money;
+                    break;
+                case 2:
+                    IN_FEB += yearIN_Money;
+                    break;
+                case 3:
+                    IN_MAR += yearIN_Money;
+                    break;
+                case 4:
+                    IN_APR += yearIN_Money;
+                    break;
+                case 5:
+                    IN_MAY += yearIN_Money;
+                    break;
+                case 6:
+                    IN_JUN += yearIN_Money;
+                    break;
+                case 7:
+                    IN_JUL += yearIN_Money;
+                    break;
+                case 8:
+                    IN_AUG += yearIN_Money;
+                    break;
+                case 9:
+                    IN_SEP += yearIN_Money;
+                    break;
+                case 10:
+                    IN_OCT += yearIN_Money;
+                    break;
+                case 11:
+                    IN_NOV += yearIN_Money;
+                    break;
+                case 12:
+                    IN_DEC += yearIN_Money;
+                    break;
+            }
+        }
+    }
+
+    yearPointsIN.push_back(IN_JAN);
+    yearPointsIN.push_back(IN_FEB);
+    yearPointsIN.push_back(IN_MAR);
+    yearPointsIN.push_back(IN_APR);
+    yearPointsIN.push_back(IN_MAY);
+    yearPointsIN.push_back(IN_JUN);
+    yearPointsIN.push_back(IN_JUL);
+    yearPointsIN.push_back(IN_AUG);
+    yearPointsIN.push_back(IN_SEP);
+    yearPointsIN.push_back(IN_OCT);
+    yearPointsIN.push_back(IN_NOV);
+    yearPointsIN.push_back(IN_DEC);
+
+    wxChartsDoubleDataset::ptr yearlyDataIN(new wxChartsDoubleDataset("Yearly points IN", yearPointsIN));
+    yearlyData->AddDataset(yearlyDataIN);
+
+    //Calculations and data processing for yearly OUT
+
+    std::string yearOUT_Line;
+    std::ifstream yearOUT_File("moneyOut.txt");
+
+    wxVector<wxDouble> yearPointsOUT;
+
+    double OUT_JAN = 0;
+    double OUT_FEB = 0;
+    double OUT_MAR = 0;
+    double OUT_APR = 0;
+    double OUT_MAY = 0;
+    double OUT_JUN = 0;
+    double OUT_JUL = 0;
+    double OUT_AUG = 0;
+    double OUT_SEP = 0;
+    double OUT_OCT = 0;
+    double OUT_NOV = 0;
+    double OUT_DEC = 0;
+
+    while (std::getline(yearIN_File, yearIN_Line))
+    {
+        std::istringstream lineStream(yearIN_Line);
+        std::string yearOUT_MoneyStr, yearOUT_Type, dateStr;
+        std::getline(lineStream, yearOUT_MoneyStr, ',');
+        std::getline(lineStream, yearOUT_Type, ',');
+        std::getline(lineStream, dateStr, ',');
+
+        std::istringstream dateStream(dateStr);
+        std::string month, day, year;
+        std::getline(dateStream, month, ' ');
+        std::getline(dateStream, day, ' ');
+        std::getline(dateStream, year);
+
+        double yearOUT_Money = std::stod(yearOUT_MoneyStr);
+
+        double monthNUM = std::stod(month);
+        double yearNUM = std::stod(year);
+
+        if (currentYear == yearNUM)
+        {
+            switch (currentMonth)
+            {
+            case 1:
+                OUT_JAN += yearOUT_Money;
+                break;
+            case 2:
+                OUT_FEB += yearOUT_Money;
+                break;
+            case 3:
+                OUT_MAR += yearOUT_Money;
+                break;
+            case 4:
+                OUT_APR += yearOUT_Money;
+                break;
+            case 5:
+                OUT_MAY += yearOUT_Money;
+                break;
+            case 6:
+                OUT_JUN += yearOUT_Money;
+                break;
+            case 7:
+                OUT_JUL += yearOUT_Money;
+                break;
+            case 8:
+                OUT_AUG += yearOUT_Money;
+                break;
+            case 9:
+                OUT_SEP += yearOUT_Money;
+                break;
+            case 10:
+                OUT_OCT += yearOUT_Money;
+                break;
+            case 11:
+                OUT_NOV += yearOUT_Money;
+                break;
+            case 12:
+                OUT_DEC += yearOUT_Money;
+                break;
+            }
+        }
+    }
+
+    yearPointsIN.push_back(OUT_JAN);
+    yearPointsIN.push_back(OUT_FEB);
+    yearPointsIN.push_back(OUT_MAR);
+    yearPointsIN.push_back(OUT_APR);
+    yearPointsIN.push_back(OUT_MAY);
+    yearPointsIN.push_back(OUT_JUN);
+    yearPointsIN.push_back(OUT_JUL);
+    yearPointsIN.push_back(OUT_AUG);
+    yearPointsIN.push_back(OUT_SEP);
+    yearPointsIN.push_back(OUT_OCT);
+    yearPointsIN.push_back(OUT_NOV);
+    yearPointsIN.push_back(OUT_DEC);
+
+    wxChartsDoubleDataset::ptr yearlyDataOUT(new wxChartsDoubleDataset("Yearly points OUT", yearPointsOUT));
+    yearlyData->AddDataset(yearlyDataOUT);
+
     //data set 6 months
 
     wxVector<wxString> biYearlyLabels;
@@ -292,14 +507,14 @@ void MainFrame::UpdateGraph(int listIndex)
     biYearlyLabels.push_back("");
     wxChartsCategoricalData::ptr biYearlyData = wxChartsCategoricalData::make_shared(biYearlyLabels);
 
+    //data set 1 months
+
     wxVector<wxString> monthLabels;
     monthLabels.push_back("");
     monthLabels.push_back("");
     monthLabels.push_back("");
     monthLabels.push_back("");
     wxChartsCategoricalData::ptr monthData = wxChartsCategoricalData::make_shared(monthLabels);
-
-    //data set 1 month
 
     wxLineChartCtrl* lineChartCtrl = nullptr;
     wxBoxSizer* graphSizer = new wxBoxSizer(wxHORIZONTAL);
