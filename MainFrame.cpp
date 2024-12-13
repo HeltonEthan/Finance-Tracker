@@ -14,6 +14,9 @@
 #include <ctime>
 #include <fstream>
 #include <sstream>
+#include <wxpiechart.h>
+#include <wxpiechartctrl.h>
+#include <wxpiechartoptions.h>
 
 // This is becoming hard to read; but I hate overcommenting
 
@@ -112,10 +115,52 @@ void MainFrame::UpdateContent(int listIndex)
     wxStaticText* text = nullptr;
     wxButton* outRefresh = nullptr;
 
+    //Data handling for the pie chart yoo
+
+    std::string yearIN_Line;
+    std::ifstream yearIN_File("moneyIn.txt");
+
+    double job = 0;
+    double other = 0;
+    double gift = 0;
+    double investing = 0;
+
+    while (std::getline(yearIN_File, yearIN_Line))
+    {
+        std::istringstream lineStream(yearIN_Line);
+        std::string MoneyStr, Type, dateStr;
+        std::getline(lineStream, MoneyStr, ',');
+        std::getline(lineStream, Type, ',');
+        std::getline(lineStream, dateStr, ',');
+
+        double moneyIN = std::stod(MoneyStr);
+
+        if (Type == "job")
+        {
+            job += moneyIN;
+        }
+        else if (Type == "investing")
+        {
+            investing += moneyIN;
+        }
+        else if (Type == "gift")
+        {
+            gift += moneyIN;
+        }
+        else 
+        {
+            other += moneyIN;
+        }
+    }
+
+    wxChartsLegendCtrl* legendCtrl = nullptr;
+    wxPieChartCtrl* pieChartCtrl = nullptr;
+    wxBoxSizer* pieSizer = nullptr;
+    wxPieChartData::ptr chartData = wxPieChartData::make_shared();
+
     switch (listIndex)
     {
     case 0:
-        //TODO make event handling for all this shit
         contentText = new wxStaticText(contentPanel, wxID_ANY, "General Finances", wxPoint(10, 10));
         contentSizer->Add(contentText, 0, wxTOP | wxLEFT, 10);
         inputPoint = new wxStaticText(contentPanel, wxID_ANY, "Input today's earnings", wxPoint(10, 40));
@@ -137,7 +182,17 @@ void MainFrame::UpdateContent(int listIndex)
         line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(330, 48), wxSize(58, 2), wxLI_HORIZONTAL);
         line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(205, 171), wxSize(181, 2), wxLI_HORIZONTAL);
         line = new wxStaticLine(contentPanel, wxID_ANY, wxPoint(205, 48), wxSize(2, 125), wxLI_VERTICAL);
-        
+
+        chartData->AppendSlice(wxChartSliceData(job, wxColor(0x4A46F7), "Job"));
+        chartData->AppendSlice(wxChartSliceData(investing, wxColor(0xBDBF46), "Investing"));
+        chartData->AppendSlice(wxChartSliceData(gift, wxColor(0x5CB4FD), "Gift"));
+        chartData->AppendSlice(wxChartSliceData(other, wxColor(0xB19F94), "Other"));
+
+        piePanel = new wxPanel(contentPanel, wxID_ANY, wxPoint(410, 10), wxSize(200, 200));
+
+        pieChartCtrl = new wxPieChartCtrl(piePanel, wxID_ANY, chartData, wxPoint(25, 25), wxSize(175, 175), wxBORDER_NONE);
+
+
         break;
 
     case 1:
@@ -339,45 +394,30 @@ void MainFrame::UpdateGraph(int listIndex)
         
         if (currentYear == yearNUM)
         {
-            switch (currentMonth)
-            {
-                case 1:
-                    IN_JAN += yearIN_Money;
-                    break;
-                case 2:
-                    IN_FEB += yearIN_Money;
-                    break;
-                case 3:
-                    IN_MAR += yearIN_Money;
-                    break;
-                case 4:
-                    IN_APR += yearIN_Money;
-                    break;
-                case 5:
-                    IN_MAY += yearIN_Money;
-                    break;
-                case 6:
-                    IN_JUN += yearIN_Money;
-                    break;
-                case 7:
-                    IN_JUL += yearIN_Money;
-                    break;
-                case 8:
-                    IN_AUG += yearIN_Money;
-                    break;
-                case 9:
-                    IN_SEP += yearIN_Money;
-                    break;
-                case 10:
-                    IN_OCT += yearIN_Money;
-                    break;
-                case 11:
-                    IN_NOV += yearIN_Money;
-                    break;
-                case 12:
-                    IN_DEC += yearIN_Money;
-                    break;
-            }
+            if (monthNUM == 1)
+                IN_JAN += yearIN_Money;
+            else if (monthNUM == 2)
+                IN_FEB += yearIN_Money;
+            else if (monthNUM == 3)
+                IN_MAR += yearIN_Money;
+            else if (monthNUM == 4)
+                IN_APR += yearIN_Money;
+            else if (monthNUM == 5)
+                IN_MAY += yearIN_Money;
+            else if (monthNUM == 6)
+                IN_JUN += yearIN_Money;
+            else if (monthNUM == 7)
+                IN_JUL += yearIN_Money;
+            else if (monthNUM == 8)
+                IN_AUG += yearIN_Money;
+            else if (monthNUM == 9)
+                IN_SEP += yearIN_Money;
+            else if (monthNUM == 10)
+                IN_OCT += yearIN_Money;
+            else if (monthNUM == 11)
+                IN_NOV += yearIN_Money;
+            else if (monthNUM == 12)
+                IN_DEC += yearIN_Money;
         }
     }
 
@@ -438,45 +478,30 @@ void MainFrame::UpdateGraph(int listIndex)
 
         if (currentYear == yearNUM)
         {
-            switch (currentMonth)
-            {
-            case 1:
+            if (monthNUM == 1)
                 OUT_JAN += yearOUT_Money;
-                break;
-            case 2:
+            else if (monthNUM == 2)
                 OUT_FEB += yearOUT_Money;
-                break;
-            case 3:
+            else if (monthNUM == 3)
                 OUT_MAR += yearOUT_Money;
-                break;
-            case 4:
+            else if (monthNUM == 4)
                 OUT_APR += yearOUT_Money;
-                break;
-            case 5:
+            else if (monthNUM == 5)
                 OUT_MAY += yearOUT_Money;
-                break;
-            case 6:
+            else if (monthNUM == 6)
                 OUT_JUN += yearOUT_Money;
-                break;
-            case 7:
+            else if (monthNUM == 7)
                 OUT_JUL += yearOUT_Money;
-                break;
-            case 8:
+            else if (monthNUM == 8)
                 OUT_AUG += yearOUT_Money;
-                break;
-            case 9:
+            else if (monthNUM == 9)
                 OUT_SEP += yearOUT_Money;
-                break;
-            case 10:
+            else if (monthNUM == 10)
                 OUT_OCT += yearOUT_Money;
-                break;
-            case 11:
+            else if (monthNUM == 11)
                 OUT_NOV += yearOUT_Money;
-                break;
-            case 12:
+            else if (monthNUM == 12)
                 OUT_DEC += yearOUT_Money;
-                break;
-            }
         }
     }
 
@@ -537,9 +562,18 @@ void MainFrame::UpdateGraph(int listIndex)
         std::getline(lineStream, outType, ',');
         std::getline(lineStream, dateStr, ',');
 
+        std::istringstream dateStream(dateStr);
+        std::string month, day, year;
+        std::getline(dateStream, month, ' ');
+        std::getline(dateStream, day, ' ');
+        std::getline(dateStream, year);
+
+        double monthNUM = std::stod(month);
+        double yearNUM = std::stod(year);
+
         wxDouble money = std::stod(outMoneyStr);
         allTimePointsOUT.push_back(money);
-        allTimeLabels.push_back(wxString(dateStr));
+        allTimeLabels.push_back("");
     }
 
     wxChartsCategoricalData::ptr allTimeData = wxChartsCategoricalData::make_shared(allTimeLabels);
